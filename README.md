@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="https://github.com/RoyDefined/WIP-UniversalLegs/blob/main/files/logo.png?raw=true" />
+	<img src="https://github.com/RoyDefined/UniversalLegs/blob/main/files/logo.png?raw=true" />
 </div>
 
 <div align="center">
