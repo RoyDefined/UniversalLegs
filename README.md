@@ -5,7 +5,7 @@
 <div align="center">
 	<a href="https://Discord.RoyDefined.com/"><img src="https://img.shields.io/discord/1154064438551400538?style=flat&label=Join%20Community&color=7289DA" /></a>
 	<a href="https://www.RoyDefined.com/"><img src="https://img.shields.io/badge/RoyDefined.com-blue" /></a>
-	<a href="https://www.Zandronum.com/"><img src="https://img.shields.io/badge/Forum%20Post%20(Zandronum)-darkgreen" /></a>
+	<a href="https://zandronum.com/forum/viewtopic.php?f=58&t=11144"><img src="https://img.shields.io/badge/Forum%20Post%20(Zandronum)-darkgreen" /></a>
 </div>
 
 ------
