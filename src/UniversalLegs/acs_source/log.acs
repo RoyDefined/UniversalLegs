@@ -1,0 +1,12 @@
+#nocompact
+#pragma raw include on
+
+#library "log"
+
+// Dependencies
+#import "zcommon.bcs"
+#import "bcsutils.acs"
+#import "common.acs"
+
+// Included files.
+#include "log/log.acs"

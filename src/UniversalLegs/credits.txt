@@ -1,0 +1,11 @@
+CREDITS
+================================================================================
+Below is an extensive list of people and third party projects who have been
+involved in the creation of this mod in one way or another. It is possible that
+some of this information has been lost or forgotten about during development.
+Want to make additions to this list? Then please consider contacting the
+information that can be found in `wadinfo.txt`.
+
+
+Emerald
+- For allowing the usage of the leg sprites.

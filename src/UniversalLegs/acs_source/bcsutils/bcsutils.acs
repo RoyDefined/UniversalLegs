@@ -1,0 +1,259 @@
+enum : int { INT_MAX = 2147483647 };
+enum : int { INT_MIN = -INT_MAX - 1 };
+enum : int { MAX_PLAYERS = 64 };
+
+// Multiple return values.
+raw r1, r2, r3, r4, r5, r6, r7, r8;
+
+function raw cond(bool x, raw whentrue, raw whenfalse)
+{
+	if (x)
+		return whentrue;
+	return whenfalse;
+}
+
+function raw condTrue(raw x, raw whentrue)
+{
+	if (x)
+		return whentrue;
+	return x;
+}
+
+function raw condFalse(raw x, raw whenfalse)
+{
+	if (x)
+		return x;
+	return whenfalse;
+}
+
+function raw abs(raw x)
+{
+	if (x > 0)
+		return x;
+	return -x;
+}
+
+function void ACSUtils_ParseSign(str s, int i)
+{
+	if (GetChar(s, i) == '+')
+	{
+		r1 = 1;
+		r2 = i + 1;
+		return;
+	}
+	else if (GetChar(s, i) == '-')
+	{
+		r1 = -1;
+		r2 = i + 1;
+		return;
+	}
+	
+	r1 = 1;
+	r2 = i;
+	return;
+}
+
+enum : int { PARSENUMBER_SUCCESS = 0 };
+enum : int { PARSENUMBER_OVERFLOW = 1 };
+enum : int { PARSENUMBER_BADFORMAT = 2 };
+
+function int ACSUtils_CheckRadix(int radix, str functionName)
+{
+	if (radix <= 0)
+	{
+		return 10;
+	}
+	else if (radix > 36)
+	{
+		return 10;
+	}
+	return radix;
+}
+
+function void ACSUtils_ParseBasePrefix(str s, int i)
+{
+	if (StrIEqualsAt(s, i, "0x"))
+	{
+		r1 = 16;
+		r2 = i + 2;
+		return;
+	}
+	else if (StrIEqualsAt(s, i, "0o"))
+	{
+		r1 = 8;
+		r2 = i + 2;
+		return;
+	}
+	else if (StrIEqualsAt(s, i, "0b"))
+	{
+		r1 = 2;
+		r2 = i + 2;
+		return;
+	}
+	
+	r1 = 0;
+	r2 = i;
+	return;
+}
+
+function bool StrIEquals(str a, str b)
+{
+	return StrICmp(a, b) == 0;
+}
+
+function bool StrIEqualsAt(str s, int where, str what)
+{
+	int len = StrLen(what);
+	if (where + len > StrLen(s))
+		return false;
+	
+	return StrIEquals(StrMid(s, where, len), what);
+}
+
+function void ParseInt(str s, int radix)
+{
+	int i = 0;
+	int sign = 1;
+	radix = ACSUtils_CheckRadix(radix, "ParseInt");
+	
+	ACSUtils_ParseSign(s, i);
+	sign = r1;
+	i = r2;
+
+	ACSUtils_ParseBasePrefix(s, i);
+	radix = condFalse(r1, radix);
+	i = r2;
+	
+	int len = StrLen(s);
+	if (i == len)
+	{
+		r1 = PARSENUMBER_BADFORMAT;
+		r2 = 0;
+	}	
+	
+	int maxresult = cond(sign > 0, INT_MAX, INT_MIN);
+	int limit = abs(maxresult / radix);
+	int result = 0;
+	bool overflowed = false;
+	for (; i < len; i++)
+	{
+		int c = GetChar(s, i);
+		int digit = ACSUtils_ParseDigit(c, radix);
+		if (digit < 0)
+		{
+			r1 = PARSENUMBER_BADFORMAT;
+			r2 = 0;
+			return;
+		}
+		
+		if (limit >= abs(result) && result != INT_MIN)
+			result = result * radix + sign * digit;
+		else
+			overflowed = true;			
+	}
+	
+	if (overflowed)
+	{
+		r1 = PARSENUMBER_OVERFLOW;
+		r2 = maxresult;
+		return;
+	}
+	else
+	{
+		r1 = PARSENUMBER_SUCCESS;
+		r2 = result;
+		return;
+	}
+}
+
+function int ACSUtils_ParseDigit(int c, int radix)
+{
+	int digit;
+	if (c >= '0' && c <= '9')
+		digit = c - '0';
+	else if (c >= 'a' && c <= 'z')
+		digit = c - 'a' + 10;
+	else if (c >= 'A' && c <= 'Z')
+		digit = c - 'A' + 10;
+	else
+		return -1;
+		
+	if (digit < radix)
+		return digit;
+	return -1;
+}	
+
+function int atoi(str s)
+{
+	ParseInt(s, 10);
+	return r2;
+}
+
+function bool IsZandronum(void)
+{
+	return ((raw)GetPlayerAccountName(0)) != 0;
+}
+
+function bool IsServer(void)
+{
+	if (ConsolePlayerNumber() < 0)
+		return true;
+		
+	// Needs to be done like this to avoid crashing the script in ZDoom.
+	if (IsZandronum())
+		return !IsNetworkGame();
+	
+	return true;
+}
+
+function bool IsClient(void)
+{
+	return ConsolePlayerNumber() >= 0;
+}
+
+function bool IsServerOnly(void)
+{
+	return IsServer() && !IsClient();
+}
+
+function bool IsClientOnly(void)
+{
+	return IsClient() && !IsServer();
+}
+
+function bool IsPlayer(void)
+{
+	return PlayerNumber() >= 0;
+}
+
+function bool ActorIsAlive(int tid)
+{
+	if (tid == 0 && IsPlayer())
+		if (!PlayerInGame(PlayerNumber()))
+			return false;
+	return GetActorProperty(tid, APROP_HEALTH) > 0;
+}
+
+function fixed GetActorXYVelocity(int tid)
+{
+	return VectorLength(GetActorVelX(tid), GetActorVelY(tid));
+}
+
+function void RotateVector(fixed x, fixed y, fixed angle)
+{
+	// Rotate around Z axis.
+	fixed s = sin(angle);
+	fixed c = cos(angle);
+	r1 = FixedMul(x, c) - FixedMul(y, s);
+	r2 = FixedMul(x, s) + FixedMul(y, c);
+}
+
+function bool IsOpenGL(void)
+{
+	if (!IsClient())
+	{
+		return true;
+	}
+	
+	return GetCVar("vid_renderer") == 1 && GetCVar("gl_nogl") == 0;
+}

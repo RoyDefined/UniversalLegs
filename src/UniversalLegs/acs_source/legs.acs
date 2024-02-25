@@ -1,0 +1,11 @@
+#nocompact
+#pragma raw include on
+
+#library "legs"
+
+#import "zcommon.bcs"
+#import "bcsutils.acs"
+#import "log.acs"
+
+// Included files.
+#include "legs/legs.acs"

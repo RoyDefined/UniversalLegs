@@ -1,0 +1,157 @@
+private bool _walking;
+private bool _chasecam;
+private bool _customTid;
+
+script "LegsEnter" enter
+{
+	if (!IsZandronum()) {
+		terminate;
+	}
+	
+	// Intentional delay to avoid tid issues.
+	Delay(const: 5);
+	
+	if (ActivatorTID() != 0) {
+		terminate;
+	}
+	
+	_customTid = UniqueTID();
+	Thing_ChangeTID(0, _customTid);
+	
+	LogDebug("Tid has been assigned.");
+}
+
+script "LegsEnterClient" enter clientside
+{
+	if (!IsZandronum())
+	{
+		LogError("First person legs is a mod only compatible with Zandronum. Please change the source port you play on if you want to use this mod.");
+		terminate;
+	}
+	
+	if (PlayerIsBot(PlayerNumber())) {
+		terminate;
+	}
+	
+	// Intentional delay to avoid tid issues.
+	Delay(const: 10);
+	
+	int legsTID = UniqueTid();
+	int sourceTid = ActivatorTID();
+	
+	SpawnForced("FirstPersonLegs", GetActorX(0), GetActorY(0), GetActorZ(0), legsTID);
+	SpawnForced("FirstPersonLegsTarget", GetActorX(0), GetActorY(0), GetActorZ(0), legsTID + 1);
+	
+	SetActivator(legsTID);
+	
+	LogDebug("Start legs");
+	while (ActorIsAlive(sourceTid))
+	{
+		// Check for chasecam
+		if (GetPlayerChasecam(ConsolePlayerNumber()))
+		{
+			if (!_chasecam)
+			{
+				SetActorProperty(legsTID, APROP_ALPHA, 0.0);
+				_chasecam = true;
+			}
+			
+			Delay(const: 1);
+			continue;
+		}
+		
+		if (_chasecam)
+		{
+			SetActorProperty(legsTID, APROP_ALPHA, 1.0);
+			_chasecam = false;
+		}
+		
+		fixed dirVectorX = -5.0,
+			  dirVectorY = 0.0;
+		
+		// Check walking
+		bool doWalk = GetActorXYVelocity(sourceTid) > 5.0;
+		if (doWalk && !_walking)
+		{
+			SetActorState(legsTID, "Walking");
+			_walking = true;
+		}
+		if (!doWalk && _walking)
+		{
+			SetActorState(legsTID, "Spawn");
+			_walking = false;
+		}
+		
+		fixed offsetZ = 20.0;
+		if (IsOpenGL())
+		{
+			// Opengl needs the legs slightly lower when walking to avoid it looking weird
+			if (_walking)
+			{
+				dirVectorX -= 8.0;
+			}
+		}
+		else
+		{
+			dirVectorX += 20.0;
+			offsetZ -= 20.0;
+		}
+		
+		RotateVector(dirVectorX, dirVectorY, GetActorAngle(sourceTid));
+		dirVectorX = r1,
+		dirVectorY = r2;
+		
+		// This should not fail as the actor used to place the legs does not check the blockmap.
+		if (!SetActorPosition(legsTID + 1, GetActorX(sourceTid) + dirVectorX, GetActorY(sourceTid) + dirVectorY, GetActorZ(sourceTid) + offsetZ, false)) {
+			//LogError("Failed to set leg position");
+			Delay(const: 1);
+			continue;
+		}
+		
+		Warp(legsTID + 1, 0, 0, 0, 0, WARPF_NOCHECKPOSITION);	
+		Delay(const: 1);
+	}
+	
+	Thing_Remove(legsTID);
+	Thing_Remove(legsTID + 1);
+	LogDebug("End legs");
+}
+
+script "LegsDeath" death
+{
+	ACS_NamedExecute("LegsDisconnect", 0);
+}
+
+script "LegsDisconnect" (int id) disconnect
+{
+	if (!IsZandronum()) {
+		terminate;
+	}
+	
+	if (!_customTid == 0) {
+		terminate;
+	}
+	
+	Thing_ChangeTID(_customTid, 0);
+	LogDebug("Unset the player's TID");
+}
+
+script "LegsRespawn" respawn
+{
+	if (!IsZandronum()) {
+		terminate;
+	}
+	
+	LogDebug("Respawning player");
+	ACS_NamedExecute("LegsEnter", 0);
+}
+
+script "LegsRespawnClient" respawn clientside
+{
+	if (!IsZandronum()) {
+		terminate;
+	}
+	
+	LogDebug("Respawning player client");
+	ACS_NamedExecute("LegsEnterClient", 0);
+}

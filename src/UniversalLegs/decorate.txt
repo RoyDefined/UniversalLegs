@@ -1,0 +1,43 @@
+Actor FirstPersonLegsTarget
+{
+	Radius 1
+	Height 1
+	
+	+NOINTERACTION
+	+NOBLOCKMAP
+	+CLIENTSIDEONLY
+	
+	States
+	{
+		Spawn:
+			TNT1 A -1
+	}
+}
+
+Actor FirstPersonLegs
+{
+	Radius 1
+	Height 1
+	Scale .1
+	
+	+NOINTERACTION
+	+FORCEXYBILLBOARD
+	+NOBLOCKMAP
+	+CLIENTSIDEONLY
+	//+INVISIBLEINMIRRORS
+	
+	Renderstyle Translucent
+	
+	States
+	{
+		Spawn:
+			STAN A -1
+		
+		None:
+			TNT1 A -1
+		
+		Walking:
+			WALK ABCDEFGHIJKLMNOPQRSTUV 1
+			loop
+	}
+}

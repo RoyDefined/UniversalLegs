@@ -1,0 +1,71 @@
+strict namespace
+{
+	enum : fixed
+	{
+		// The exact number to convert a second into a tic.
+		TICTOSECOND = 2.85714285714,
+	};
+	
+	// This is a list of cvars that are used.
+	enum : str
+	{
+		// Zandronum cvars
+		SHOOTTHROUGHALLIESCVAR = "sv_shootthroughallies",
+		UNBLOCKALLIESCVAR = "sv_unblockallies",
+		MAXCLIENTSCVAR = "sv_maxclients",
+		MAXPLAYERSCVAR = "sv_maxplayers",
+		NOTEAMSELECTCVAR = "sv_noteamselect",
+		KEEPTEAMSCVAR = "sv_keepteams",
+		NORESPAWNINVUL = "sv_norespawninvul",
+		NOCOOPINFOCVAR = "sv_nocoopInfo",
+		NOSPAWNTELEFOGCVAR = "sv_nospawntelefog",
+		NOTEAMSWITCHCVAR = "sv_noteamswitch",
+		SENDFULLBUTTONINFOCVAR = "compat_clientssendfullbuttoninfo",
+		
+		// Cut off due to length limit with ACC.
+		DONTSTPLASCRIONDISCCVAR = "compat_dont_stop_player_scripts_on_disconnect",
+		
+		TEAMDAMAGECVAR = "teamdamage",
+		DONTPUSHALLIESCVAR = "sv_dontpushallies",
+		DRAWCOOPINFOCVAR = "cl_drawcoopinfo",
+		BILLBOARDMODECVAR = "gl_billboard_mode",
+		SPRITECLIPCVAR = "gl_spriteclip",
+		IDENTIFYTARGETCVAR = "cl_identifytarget",
+		IDENTIFYMONSTERSCVAR = "cl_identifymonsters",
+		
+		LOGSEVERITYCVAR = "cl_zh_logSeverity",
+	};
+	
+	// @public
+	// @summary Returns true if the project has been compiled to run in a development environment.
+	function bool IsDevelopment(void)
+	{
+#ifdef dev
+		return true;
+#else
+#ifdef devbuild
+		return true;
+#else
+		return false;
+#endif
+#endif
+	}
+
+	// @public
+	// @summary Returns true if the project has been compiled to run in a production environment.
+	function bool IsProduction(void)
+	{
+		return !IsDevelopment();
+	}
+	
+	// @public
+	// @summary Returns true if the project is a devbuild.
+	function bool IsDevbuild(void)
+	{
+#ifdef devbuild
+		return true;
+#else
+		return false;
+#endif
+	}
+}

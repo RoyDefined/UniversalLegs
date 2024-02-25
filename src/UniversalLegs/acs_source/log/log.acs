@@ -1,0 +1,194 @@
+strict namespace
+{
+	// The log message's severity.
+	private enum LogSeverityT {
+
+		// The message is considered a debug message.
+		severityDebug,
+		
+		// The message is considered an info message.
+		severityInfo,
+		
+		// The message is considered a warning message.
+		severityWarning,
+		
+		// The message is considered an error message.
+		severityError,
+		
+		// No log severity.
+		severityNone,
+	};
+	
+	private void LogSeverity(str message, LogSeverityT severity)
+	{
+		str color = severity == severityDebug ? "j" :
+			severity == severityInfo ? "n" :
+			severity == severityWarning ? "k" :
+			severity == severityError ? "g" :
+			"j";	
+		str prefix = severity == severityDebug ? "debug" :
+			severity == severityInfo ? "info" :
+			severity == severityWarning ? "warning" :
+			severity == severityError ? "error" :
+			"";	
+		str formatted = "\c" + str(color) + prefix + ": \cj" + message;
+		
+		if (IsServerOnly())
+		{
+			// Log to server
+			Log(s:formatted);
+		}
+		
+		// Apply the current time and severity as an identifier.
+		formatted = "{" + str(severity) + "}\cj" + Strftime(SystemTime(),"%T", true) + " - " + formatted;
+		
+		// If called clientside, proceed to log directly.
+		// The reason is because NamedSendNetworkString will send the string to the server rather than staying on the client.
+		if (IsClient())
+		{
+			if (!ACS_NamedExecuteAlways("Log_ClientString", 0, formatted)) {
+				Log(s:"\cgError\cj: Failed to invoke Log_ClientString");
+			}
+			return;
+		}
+		
+		if(!NamedSendNetworkString("Log_ClientInt", formatted)) {
+			PrintBold(s:"\cgError\cj: A log message with severity could not be delivered to clients.");
+		}
+	}
+	
+	// @public
+	// @summary Sends a log message to the client with the given id.
+	function void LogTo(str message, int clientId)
+	{
+		if (!PlayerInGame(clientId) && PlayerIsSpectator(clientId) == 0) {
+			LogWarning("Unable to send log message. Client " + str(clientId) + " is not in game. Message is \"" + message + "\".");
+			return;
+		}
+		
+		// Don't need to send to bots.
+		if (PlayerIsBot(clientId)) {
+			return;
+		}
+		
+		// LogTo must point to the client if called clientside.
+		if (IsClient() && clientId != ConsolePlayerNumber()) {
+			LogWarning("Unable to send log message. Calling a log message clientside must point to the console player (" + str(clientId) + " != " + str(ConsolePlayerNumber()) + "). Message is \"" + message + "\".");
+			return;
+		}
+		
+		// If called clientside, proceed to log directly.
+		// The reason is because NamedSendNetworkString will send the string to the server rather than staying on the client.
+		if (IsClient())
+		{
+			if (!ACS_NamedExecuteAlways("Log_ClientString", 0, message)) {
+				Log(s:"\cgError\cj: Failed to invoke Log_ClientString");
+			}
+			return;
+		}
+		
+		if(!NamedSendNetworkString("Log_ClientInt", message, clientId)) {
+			PrintBold(s:"\cgError\cj: A log message could not be delivered to client " + str(clientId) + ".");
+		}
+	}
+	
+	// @public
+	// @summary Sends a log message to the activator of the function.
+	function void LogActivator(str message)
+	{
+		LogTo(message, PlayerNumber());
+	}
+	
+	// @public
+	// @summary Sends a log message to everybody except the player with the given id.
+	function void LogExcept(str message, int id)
+	{
+		for (int i = 0; i < MAX_PLAYERS; ++i)
+		{
+			if (i == id) {
+				continue;
+			}
+			
+			if (!PlayerInGame(i) && PlayerIsSpectator(i) == 0) {
+				continue;
+			}
+			
+			LogTo(message, i);
+		}
+	}
+	
+	// @public
+	// @summary Sends a log message to all clients.
+	function void LogBold(str message)
+	{
+		if (IsServerOnly())
+		{
+			// Log to server
+			Log(s:message);
+		}
+		
+		if(!NamedSendNetworkString("Log_ClientInt", message)) {
+			PrintBold(s:"\cgError\cj: A log message could not be delivered to clients.");
+		}
+	}
+	
+	// @public
+	// @summary Sends a debug log message to all clients.
+	function void LogDebug(str message)
+	{
+		LogSeverity(message, severityDebug);
+	}
+
+	// @public
+	// @summary Sends an info log message to all clients.
+	function void LogInfo(str message)
+	{
+		LogSeverity(message, severityInfo);
+	}
+
+	// @public
+	// @summary Sends a warning log message to all clients.
+	function void LogWarning(str message)
+	{
+		LogSeverity(message, severityWarning);
+	}
+
+	// @public
+	// @summary Sends an error log message to all clients.
+	function void LogError(str message)
+	{
+		LogSeverity(message, severityError);
+	}
+	
+	script "Log_ClientInt" (raw stringInt) clientside
+	{
+		str string = (str)stringInt;
+		SetActivatorToPlayer(ConsolePlayerNumber());
+		LogClient(string);
+	}
+	
+	script "Log_ClientString" (raw stringStr) clientside
+	{
+		SetActivatorToPlayer(ConsolePlayerNumber());
+		LogClient(stringStr);
+	}
+	
+	void LogClient(str message)
+	{
+		// Check for a severity. It's messy but considering we can only really pass a string there is no better way.
+		if (message[0] == '{' && message[2] == '}')
+		{
+			int severityChar = message[1];
+		
+			// Production build will never have debug messages.
+			if (IsProduction() && severityChar == str(severityDebug)[0]) {
+				return;
+			}
+			
+			int severityInt = atoi(StrParam(c:severityChar));
+			message = StrRight(message, message.length() - 3);
+		}
+		
+		Log(s:message);
+	}
+}

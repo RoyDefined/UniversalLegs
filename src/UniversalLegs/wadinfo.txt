@@ -1,0 +1,15 @@
+Universal legs, by Fused / RoyDefined
+
+
+AUTHOR INFORMATION
+================================================================================
+
+Name: 	 Roy van der Wijk
+Contact: https://github.com/RoyDefined
+
+
+GAME INFORMATION
+================================================================================
+
+Engine:	  Zandronum 3.1 or later
+Compiler: BCC
