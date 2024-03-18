@@ -33,9 +33,6 @@ Actor FirstPersonLegs
 		Spawn:
 			STAN A -1
 		
-		None:
-			TNT1 A -1
-		
 		Walking:
 			WALK ABCDEFGHIJKLMNOPQRSTUV 1
 			loop
