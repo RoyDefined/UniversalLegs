@@ -1,3 +1,8 @@
+private enum : fixed
+{
+	DRAWPITCHTHRESHOLD = 0.15,
+};
+
 private bool _walking;
 private int _legsTid;
 private bool _visible;
@@ -86,7 +91,14 @@ script "LegsEnterClient" enter clientside
 		bool visible = GetVisible();
 		
 		// Check for chasecam. Do not show legs in chasecam.
-		if (GetPlayerChasecam(ConsolePlayerNumber()))
+		bool chasecamDontDraw = GetPlayerChasecam(ConsolePlayerNumber());
+		
+		// Do not show legs when the player's angle is beyond a certain threshold.
+		// This is to avoid seeing them in mirrors (still shown in floor mirrors though)
+		bool pitchDontDraw = GetActorPitch(sourceTid) < DRAWPITCHTHRESHOLD;
+		
+		// Check for chasecam. Do not show legs in chasecam.
+		if (chasecamDontDraw || pitchDontDraw)
 		{
 			SetVisible(false);
 			Delay(const: 1);
