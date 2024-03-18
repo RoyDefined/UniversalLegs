@@ -77,8 +77,9 @@ script "LegsEnterClient" enter clientside
 	SpawnForced("FirstPersonLegs", GetActorX(0), GetActorY(0), GetActorZ(0), legsTID);
 	SpawnForced("FirstPersonLegsTarget", GetActorX(0), GetActorY(0), GetActorZ(0), legsTID + 1);
 	
+	Thing_SetTranslation(legsTID, -1);
 	SetActivator(legsTID);
-	
+		
 	LogDebug("Start legs");
 	while (ActorIsAlive(sourceTid))
 	{
