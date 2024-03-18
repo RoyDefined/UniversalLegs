@@ -1,6 +1,39 @@
 private bool _walking;
-private bool _chasecam;
+private int _legsTid;
+private bool _visible;
 private bool _customTid;
+
+function bool GetWalking(void)
+{
+	return _walking;
+}
+
+function void SetWalking(bool walking)
+{
+	SetActorState(GetLegsTid(), walking ? "Walking" : "Spawn");
+	_walking = walking;
+}
+
+function int GetLegsTid(void)
+{
+	return _legsTid;
+}
+
+function void SetLegsTid(int tid)
+{
+	_legsTid = tid;
+}
+
+function bool GetVisible(void)
+{
+	return _visible;
+}
+
+function void SetVisible(bool visible)
+{
+	SetActorProperty(GetLegsTid(), APROP_ALPHA, visible ? 1.0 : 0.0);
+	_visible = visible;
+}
 
 script "LegsEnter" enter
 {
@@ -37,6 +70,8 @@ script "LegsEnterClient" enter clientside
 	Delay(const: 10);
 	
 	int legsTID = UniqueTid();
+	SetLegsTid(legsTID);
+	
 	int sourceTid = ActivatorTID();
 	
 	SpawnForced("FirstPersonLegs", GetActorX(0), GetActorY(0), GetActorZ(0), legsTID);
@@ -47,23 +82,19 @@ script "LegsEnterClient" enter clientside
 	LogDebug("Start legs");
 	while (ActorIsAlive(sourceTid))
 	{
-		// Check for chasecam
+		bool visible = GetVisible();
+		
+		// Check for chasecam. Do not show legs in chasecam.
 		if (GetPlayerChasecam(ConsolePlayerNumber()))
 		{
-			if (!_chasecam)
-			{
-				SetActorProperty(legsTID, APROP_ALPHA, 0.0);
-				_chasecam = true;
-			}
-			
+			SetVisible(false);
 			Delay(const: 1);
 			continue;
 		}
 		
-		if (_chasecam)
+		if (!visible)
 		{
-			SetActorProperty(legsTID, APROP_ALPHA, 1.0);
-			_chasecam = false;
+			SetVisible(true);
 		}
 		
 		fixed dirVectorX = -5.0,
@@ -73,13 +104,11 @@ script "LegsEnterClient" enter clientside
 		bool doWalk = GetActorXYVelocity(sourceTid) > 5.0;
 		if (doWalk && !_walking)
 		{
-			SetActorState(legsTID, "Walking");
-			_walking = true;
+			SetWalking(true);
 		}
 		if (!doWalk && _walking)
 		{
-			SetActorState(legsTID, "Spawn");
-			_walking = false;
+			SetWalking(false);
 		}
 		
 		fixed offsetZ = 20.0;
@@ -131,6 +160,10 @@ script "LegsDisconnect" (int id) disconnect
 	if (!_customTid == 0) {
 		terminate;
 	}
+	
+	SetLegsTid(-1);
+	SetVisible(false);
+	SetWalking(false);
 	
 	Thing_ChangeTID(_customTid, 0);
 	LogDebug("Unset the player's TID");
