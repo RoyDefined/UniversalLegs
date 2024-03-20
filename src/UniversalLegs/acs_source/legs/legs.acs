@@ -143,8 +143,16 @@ script "LegsEnterClient" enter clientside
 		dirVectorX = r1,
 		dirVectorY = r2;
 		
+		// The warping appears to apply extra Z velocity regardless of the flags added to the warping.
+		// To avoid the legs floating away when a lot of velocity is applied, we instead decrement this from the final position.
+		fixed velZ = GetActorVelZ(sourceTid);
+		
+		fixed targetX = GetActorX(sourceTid) + dirVectorX,
+			  targetY = GetActorY(sourceTid) + dirVectorY,
+			  targetZ = GetActorZ(sourceTid) + offsetZ - velZ;
+			  
 		// This should not fail as the actor used to place the legs does not check the blockmap.
-		if (!SetActorPosition(legsTID + 1, GetActorX(sourceTid) + dirVectorX, GetActorY(sourceTid) + dirVectorY, GetActorZ(sourceTid) + offsetZ, false)) {
+		if (!SetActorPosition(legsTID + 1, targetX, targetY, targetZ, false)) {
 			//LogError("Failed to set leg position");
 			Delay(const: 1);
 			continue;
