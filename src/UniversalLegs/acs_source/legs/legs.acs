@@ -168,6 +168,11 @@ script "LegsEnterClient" enter clientside
 			// The legs won't actually be viewable, but that seems pretty fair considering the weird angle.
 			fixed diffSoftware = (GetInitialViewHeight() - GetActorViewHeight(sourceTid));
 			dirVectorX -= diffSoftware;
+			
+			if (_walking)
+			{
+				dirVectorX -= 3.0;
+			}
 		}
 		
 		RotateVector(dirVectorX, dirVectorY, GetActorAngle(sourceTid));
