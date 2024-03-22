@@ -7,6 +7,7 @@ private bool _walking;
 private int _legsTid;
 private bool _visible;
 private bool _customTid;
+private fixed _initialViewHeight;
 
 function bool GetWalking(void)
 {
@@ -38,6 +39,20 @@ function void SetVisible(bool visible)
 {
 	SetActorProperty(GetLegsTid(), APROP_ALPHA, visible ? 1.0 : 0.0);
 	_visible = visible;
+}
+
+function fixed GetInitialViewHeight(void)
+{
+	return _initialViewHeight;
+}
+
+function void SetInitialViewHeight(fixed initialViewHeight)
+{
+	if (_initialViewHeight > initialViewHeight) {
+		return;
+	}
+	
+	_initialViewHeight = initialViewHeight;
 }
 
 script "LegsEnter" enter
@@ -124,6 +139,13 @@ script "LegsEnterClient" enter clientside
 			SetWalking(false);
 		}
 		
+		// Set initial viewheight. Will override if the value is greater than the old value.
+		// This is used to detect crouching. Since there is no good way to do this, we use this instead.
+		// The reason the whole overriding is done is because a player could crouch before the code kicks in,
+		// and this means the code will be wrong because the initial viewheight will actually be the crouched viewheight.
+		SetInitialViewHeight(GetActorViewHeight(sourceTid));
+		
+		// TODO: Make this offset configurable. This whole thing exists because the leg sprites are cut off.
 		fixed offsetZ = 20.0;
 		if (IsOpenGL())
 		{
@@ -132,6 +154,10 @@ script "LegsEnterClient" enter clientside
 			{
 				dirVectorX -= 8.0;
 			}
+			
+			// Lower the Z value by a specific value if the player is crouching.
+			fixed zDiff = (GetInitialViewHeight() - GetActorViewHeight(sourceTid)) / 2;
+			offsetZ -= zDiff;
 		}
 		else
 		{
