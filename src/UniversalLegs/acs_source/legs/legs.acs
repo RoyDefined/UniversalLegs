@@ -156,13 +156,18 @@ script "LegsEnterClient" enter clientside
 			}
 			
 			// Lower the Z value by a specific value if the player is crouching.
-			fixed zDiff = (GetInitialViewHeight() - GetActorViewHeight(sourceTid)) / 2;
-			offsetZ -= zDiff;
+			fixed diffOpenGL = (GetInitialViewHeight() - GetActorViewHeight(sourceTid)) / 2;
+			offsetZ -= diffOpenGL;
 		}
 		else
 		{
 			dirVectorX += 20.0;
-			offsetZ -= 20.0;
+			offsetZ -= 10.0;
+			
+			// In software mode instead move the legs back because they will get stuck otherwise.
+			// The legs won't actually be viewable, but that seems pretty fair considering the weird angle.
+			fixed diffSoftware = (GetInitialViewHeight() - GetActorViewHeight(sourceTid));
+			dirVectorX -= diffSoftware;
 		}
 		
 		RotateVector(dirVectorX, dirVectorY, GetActorAngle(sourceTid));
