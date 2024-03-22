@@ -1,6 +1,7 @@
 private enum : fixed
 {
-	DRAWPITCHTHRESHOLD = 0.15,
+	DRAWPITCHTHRESHOLDSOFTWARE = 0.10,
+	DRAWPITCHTHRESHOLDOPENGL = 0.15,
 };
 
 private bool _walking;
@@ -109,8 +110,9 @@ script "LegsEnterClient" enter clientside
 		bool chasecamDontDraw = GetPlayerChasecam(ConsolePlayerNumber());
 		
 		// Do not show legs when the player's angle is beyond a certain threshold.
-		// This is to avoid seeing them in mirrors (still shown in floor mirrors though)
-		bool pitchDontDraw = GetActorPitch(sourceTid) < DRAWPITCHTHRESHOLD;
+		// This is to avoid seeing them in mirrors (still shown in floor mirrors though).
+		fixed pitchThreshold = IsOpenGL() ? DRAWPITCHTHRESHOLDOPENGL : DRAWPITCHTHRESHOLDSOFTWARE;
+		bool pitchDontDraw = GetActorPitch(sourceTid) < pitchThreshold;
 		
 		// Check for chasecam. Do not show legs in chasecam.
 		if (chasecamDontDraw || pitchDontDraw)
