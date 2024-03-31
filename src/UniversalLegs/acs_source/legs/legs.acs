@@ -96,7 +96,6 @@ script "LegsEnterClient" enter clientside
 	int sourceTid = ActivatorTID();
 	
 	SpawnForced("FirstPersonLegs", GetActorX(0), GetActorY(0), GetActorZ(0), legsTID);
-	SpawnForced("FirstPersonLegsTarget", GetActorX(0), GetActorY(0), GetActorZ(0), legsTID + 1);
 	
 	Thing_SetTranslation(legsTID, -1);
 	SetActivator(legsTID);
@@ -191,20 +190,12 @@ script "LegsEnterClient" enter clientside
 		fixed targetX = GetActorX(sourceTid) + dirVectorX,
 			  targetY = GetActorY(sourceTid) + dirVectorY,
 			  targetZ = GetActorZ(sourceTid) + offsetZ - velZ;
-			  
-		// This should not fail as the actor used to place the legs does not check the blockmap.
-		if (!SetActorPosition(legsTID + 1, targetX, targetY, targetZ, false)) {
-			//LogError("Failed to set leg position");
-			Delay(const: 1);
-			continue;
-		}
 		
-		Warp(legsTID + 1, 0, 0, 0, 0, WARPF_NOCHECKPOSITION);	
+		Warp(0, targetX, targetY, targetZ, 0, WARPF_NOCHECKPOSITION | WARPF_ABSOLUTEPOSITION);	
 		Delay(const: 1);
 	}
 	
 	Thing_Remove(legsTID);
-	Thing_Remove(legsTID + 1);
 	LogDebug("End legs");
 }
 
