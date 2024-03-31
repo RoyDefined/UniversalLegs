@@ -14,10 +14,10 @@
 	<b>Universal legs</b> is an addon for Zandronum which renders visible legs underneath the player in first person.
 </p>
 
-<b>v1.1.0</b>
+<b>v1.2.0</b>
 <div>
-	<a href="https://allfearthesentinel.com/zandronum/download.php?file=universallegs-v1.1.0.pk3"><img src="https://img.shields.io/badge/Download%20(The%20Sentinel's%20Playground)-de5833?style=for-the-badge&logoColor=white" /></a>
+	<a href="https://allfearthesentinel.com/zandronum/download.php?file=universallegs-v1.2.0.pk3"><img src="https://img.shields.io/badge/Download%20(The%20Sentinel's%20Playground)-de5833?style=for-the-badge&logoColor=white" /></a>
 </div>
 <div>
-	<a href="https://drive.google.com/file/d/1DDbvbbfw_FccFOpnxjbJZhO7xO7J3KrB/view?usp=sharing"><img src="https://img.shields.io/badge/Download%20(Google%20Drive)-4285F4?style=for-the-badge&logo=googledrive&logoColor=white" /></a>
+	<a href="https://drive.google.com/file/d/1-BjFyCNYWpiGJ762T1wluYs4fKJ415Zm/view?usp=sharing"><img src="https://img.shields.io/badge/Download%20(Google%20Drive)-4285F4?style=for-the-badge&logo=googledrive&logoColor=white" /></a>
 </div>
