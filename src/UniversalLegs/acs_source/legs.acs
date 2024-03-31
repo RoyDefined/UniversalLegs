@@ -5,6 +5,7 @@
 
 #import "zcommon.bcs"
 #import "bcsutils.acs"
+#import "common.acs"
 #import "log.acs"
 
 // Included files.

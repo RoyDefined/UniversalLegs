@@ -106,6 +106,9 @@ script "LegsEnterClient" enter clientside
 	{
 		bool visible = GetVisible();
 		
+		// Check if the cvar to draw legs is enabled
+		bool cvarDrawLegs = GetUserCvar(ConsolePlayerNumber(), DRAWLEGSCVAR) == 1;
+		
 		// Check for chasecam. Do not show legs in chasecam.
 		bool chasecamDontDraw = GetPlayerChasecam(ConsolePlayerNumber());
 		
@@ -115,7 +118,7 @@ script "LegsEnterClient" enter clientside
 		bool pitchDontDraw = GetActorPitch(sourceTid) < pitchThreshold;
 		
 		// Check for chasecam. Do not show legs in chasecam.
-		if (chasecamDontDraw || pitchDontDraw)
+		if (!cvarDrawLegs || chasecamDontDraw || pitchDontDraw)
 		{
 			SetVisible(false);
 			Delay(const: 1);

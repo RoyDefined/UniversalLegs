@@ -33,7 +33,11 @@ strict namespace
 		IDENTIFYTARGETCVAR = "cl_identifytarget",
 		IDENTIFYMONSTERSCVAR = "cl_identifymonsters",
 		
+		// Logging
 		LOGSEVERITYCVAR = "cl_zh_logSeverity",
+		
+		// Universal legs
+		DRAWLEGSCVAR = "cl_ul_drawlegs",
 	};
 	
 	// @public

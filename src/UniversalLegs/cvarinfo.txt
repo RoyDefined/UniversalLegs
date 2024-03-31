@@ -1,0 +1,2 @@
+// When `true`, draw legs.
+user bool cl_ul_drawlegs = true;
